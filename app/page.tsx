@@ -19,7 +19,49 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const cocktails = [
+type Cocktail = {
+  name: string;
+  spirit: string;
+  ingredients: string[];
+  taste: string[];
+  color: string;
+  intensity: number;
+  mood: string;
+  glass: string;
+  description: string;
+};
+
+type RecipeLine = {
+  ingredient: string;
+  dose: string;
+};
+
+type OrderStatus = "En attente" | "En préparation" | "Servi";
+
+type Order = {
+  id: string;
+  cocktail: Cocktail;
+  status: OrderStatus;
+  createdAt: string;
+};
+
+type SelectFilterProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+};
+
+type SecretDoorIntroProps = {
+  onEnter: () => void;
+};
+
+type CocktailCardProps = {
+  cocktail: Cocktail;
+  onClick: (cocktail: Cocktail) => void;
+};
+
+const cocktails: Cocktail[] = [
   { name: "Aviation", spirit: "Gin", ingredients: ["Gin", "Marasquin", "Lime", "Liqueur violette"], taste: ["floral", "acidulé"], color: "violet", intensity: 2, mood: "Élégant & Sophistiqué", glass: "Coupe", description: "Un classique floral, aérien et délicatement rétro." },
   { name: "Negroni", spirit: "Gin", ingredients: ["Gin ou Mezcal", "Campari", "Vermouth rouge"], taste: ["amer", "fort"], color: "rouge", intensity: 5, mood: "Intense & Profond", glass: "Old fashioned", description: "Amer, noble et magnétique, pour les amateurs de caractère." },
   { name: "Negroni Blanc", spirit: "Gin", ingredients: ["Gin", "Suze", "Lillet blanc"], taste: ["amer", "sec"], color: "doré", intensity: 4, mood: "Mélancolique", glass: "Old fashioned", description: "Une variation claire, herbacée et contemplative." },
@@ -146,13 +188,13 @@ function Intensity({ value }: { value: number }) {
   );
 }
 
-function SelectFilter({ label, value, onChange, options }) {
+function SelectFilter({ label, value, onChange, options }: SelectFilterProps) {
   return (
     <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.24em] text-[#C7A56A]">
       {label}
       <select
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event: React.ChangeEvent<HTMLSelectElement>) => onChange(event.target.value)}
         className="rounded-xl border border-[#7A5A2A]/60 bg-[#161311]/90 px-4 py-3 font-sans text-sm normal-case tracking-normal text-[#E8DDC7] outline-none transition focus:border-[#C7A56A]"
       >
         {options.map((option) => (
@@ -163,7 +205,7 @@ function SelectFilter({ label, value, onChange, options }) {
   );
 }
 
-function SecretDoorIntro({ onEnter }) {
+function SecretDoorIntro({ onEnter }: SecretDoorIntroProps) {
   const [opening, setOpening] = useState(false);
 
   const enter = () => {
@@ -219,7 +261,7 @@ function SecretDoorIntro({ onEnter }) {
   );
 }
 
-function recipeFor(cocktail) {
+function recipeFor(cocktail: Cocktail): RecipeLine[] {
   const citrus = ["Citron", "Lime", "Citron vert", "Pamplemousse", "Purée yuzu"];
   const sweet = ["Sirop", "Grenadine", "Orgeat", "Miel", "Cassis"];
   const sparkling = ["Fever Tree", "Ginger beer", "Prosecco", "Coca", "Tonic"];
@@ -237,13 +279,13 @@ function recipeFor(cocktail) {
   });
 }
 
-function methodFor(cocktail) {
+function methodFor(cocktail: Cocktail): string {
   if (["Negroni", "Negroni Blanc", "Lucien Gaudin", "Black Russian", "Mezcal Negroni"].includes(cocktail.name)) return "Stir au verre à mélange, puis servir sur glace.";
-  if (cocktail.glass?.toLowerCase().includes("highball") || cocktail.ingredients.some((i) => ["Ginger beer", "Fever Tree", "Coca", "Prosecco"].includes(i))) return "Monter directement au verre sur glace, puis remuer délicatement.";
+  if (cocktail.glass?.toLowerCase().includes("highball") || cocktail.ingredients.some((ingredient) => ["Ginger beer", "Fever Tree", "Coca", "Prosecco"].includes(ingredient))) return "Monter directement au verre sur glace, puis remuer délicatement.";
   return "Shaker avec glace, double filtrer, puis servir frais.";
 }
 
-function CocktailCard({ cocktail, onClick }) {
+function CocktailCard({ cocktail, onClick }: CocktailCardProps) {
   return (
     <motion.button
       layout
@@ -276,13 +318,13 @@ function CocktailCard({ cocktail, onClick }) {
 
 export default function StollysStoneBar() {
   const [introDone, setIntroDone] = useState(false);
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [mood, setMood] = useState("Tous");
   const [spirit, setSpirit] = useState("Tous");
   const [taste, setTaste] = useState("Tous");
   const [color, setColor] = useState("Tous");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<Cocktail | null>(null);
 
   const filteredCocktails = useMemo(() => {
     return cocktails.filter((cocktail) => {
@@ -296,7 +338,7 @@ export default function StollysStoneBar() {
     });
   }, [mood, spirit, taste, color, query]);
 
-  const sendToBar = (cocktail) => {
+  const sendToBar = (cocktail: Cocktail) => {
     setOrders((current) => [
       { id: `${cocktail.name}-${Date.now()}`, cocktail, status: "En attente", createdAt: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) },
       ...current,
@@ -304,7 +346,7 @@ export default function StollysStoneBar() {
     setSelected(null);
   };
 
-  const updateOrderStatus = (id, status) => {
+  const updateOrderStatus = (id: string, status: OrderStatus) => {
     setOrders((current) => current.map((order) => order.id === id ? { ...order, status } : order));
   };
 
