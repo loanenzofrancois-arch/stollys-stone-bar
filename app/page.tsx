@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -127,7 +126,7 @@ const spirits = ["Tous", "Gin", "Rhum", "Vodka", "Others"];
 const tastes = ["Tous", "fruité", "acidulé", "doux", "amer", "fort", "floral", "frais", "sec", "pétillant", "épicé", "herbacé", "café"];
 const colors = ["Tous", "rouge", "rose", "bleu", "vert", "violet", "ambre", "orange", "jaune", "bordeaux", "crème", "brun", "clair", "noir"];
 
-function classNames(...classes) {
+function classNames(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
